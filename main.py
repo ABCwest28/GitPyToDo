@@ -6,6 +6,8 @@ from PyQt5 import QtCore
 from PyQt5.QtGui import QFont, QFontDatabase, QColor
 from PyQt5.QtWidgets import *
 
+import font_resources_rc
+
 class WidgetToDo(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -92,6 +94,26 @@ class WidgetToDo(QMainWindow):
             event.accept()
         else:
             event.ignore()
+
+    def setWindowToCenter(self):
+        my_frame_geom = self.frameGeometry()
+        screen_center = QDesktopWidget().availableGeometry().center()
+        my_frame_geom.moveCenter(screen_center)
+        self.move(my_frame_geom.topLeft())
+
+    def set_font(self):
+        fontId = QFontDatabase.addApplicationFont(":/fonts/GoogleSans-Regular.ttf")
+
+        if fontId == 0:
+            fontName = QFontDatabase.applicationFontFamilies(fontId)[0]
+            self.font0 = QFont(fontName, 30)
+        else:
+            self.font0 = QFont()
+
+        self.font0.setPointSize(10)
+
+        self.setFont(self.font0)
+        self.table.setFont(self.font0)
 
 
 if __name__ == '__main__':
