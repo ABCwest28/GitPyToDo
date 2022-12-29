@@ -238,6 +238,286 @@ class WidgetToDo(QMainWindow):
         print(f"{number}, {isCompleted}")
         self.completeTask(number, isCompleted)
 
+    def showCompleted(self):
+        try:
+            sqlite_connection = sqlite3.connect('TasksDataBase.db')
+            cursor = sqlite_connection.cursor()
+            print("showCompleted->Подключен к SQLite")
+
+            sqlite_select_1 = """SELECT * FROM TasksTable WHERE isComplete = '1'"""
+            cursor.execute(sqlite_select_1)
+            result_1 = cursor.fetchall()
+
+            n = 0
+            for i in result_1:
+                self.table.setRowCount(n + 1)
+                self.table.setItem(n, 0, QTableWidgetItem(str(i[0])))
+                self.table.setItem(n, 1, QTableWidgetItem(i[1]))
+                self.table.setItem(n, 2, QTableWidgetItem(i[2]))
+                self.table.setItem(n, 3, QTableWidgetItem("выполнено"))
+                self.table.item(n, 3).setBackground(QColor(0, 250, 150, 35))
+
+                n += 1
+
+            cursor.close()
+
+        except sqlite3.Error as error:
+            print("showCompleted->Ошибка при работе с SQLite", error)
+            self.statusBar().showMessage(f"Ошибка при работе с SQLite: {error}")
+
+        finally:
+            if sqlite_connection:
+                sqlite_connection.close()
+                print("showCompleted->Соединение с SQLite закрыто")
+
+    def showUncompleted(self):
+        try:
+            sqlite_connection = sqlite3.connect('TasksDataBase.db')
+            cursor = sqlite_connection.cursor()
+            print("showUncompleted->Подключен к SQLite")
+
+            sqlite_select_0 = """SELECT * FROM TasksTable WHERE isComplete = '0'"""
+            cursor.execute(sqlite_select_0)
+            result_0 = cursor.fetchall()
+
+            n = 0
+            for i in result_0:
+                self.table.setRowCount(n + 1)
+                self.table.setItem(n, 0, QTableWidgetItem(str(i[0])))
+                self.table.setItem(n, 1, QTableWidgetItem(i[1]))
+                self.table.setItem(n, 2, QTableWidgetItem(i[2]))
+                self.table.setItem(n, 3, QTableWidgetItem("не выполнено"))
+                self.table.item(n, 3).setBackground(QColor(50, 50, 150, 35))
+
+                n += 1
+
+            cursor.close()
+
+        except sqlite3.Error as error:
+            print("showUncompleted->Ошибка при работе с SQLite", error)
+            self.statusBar().showMessage(f"Ошибка при работе с SQLite: {error}")
+
+        finally:
+            if sqlite_connection:
+                sqlite_connection.close()
+                print("showUncompleted->Соединение с SQLite закрыто")
+
+    def showSorted(self):
+        index = self.sort_combo.currentIndex()
+
+        if index == 0:
+            try:
+                sqlite_connection = sqlite3.connect('TasksDataBase.db')
+                cursor = sqlite_connection.cursor()
+                print("showSorted->Подключен к SQLite")
+
+                sqlite_select = """SELECT * FROM TasksTable ORDER BY text ASC"""
+                cursor.execute(sqlite_select)
+                result = cursor.fetchall()
+
+                n = 0
+                for i in result:
+                    self.table.setRowCount(n + 1)
+                    self.table.setItem(n, 0, QTableWidgetItem(str(i[0])))
+                    self.table.setItem(n, 1, QTableWidgetItem(i[1]))
+                    self.table.setItem(n, 2, QTableWidgetItem(i[2]))
+                    if i[3] == 0:
+                        self.table.setItem(n, 3, QTableWidgetItem(str("не выполнено")))
+                        self.table.item(n, 3).setBackground(QColor(50, 50, 150, 35))
+                    else:
+                        self.table.setItem(n, 3, QTableWidgetItem(str("выполнено")))
+                        self.table.item(n, 3).setBackground(QColor(0, 250, 150, 35))
+                    n += 1
+
+                cursor.close()
+
+            except sqlite3.Error as error:
+                print("showSorted->Ошибка при работе с SQLite", error)
+                self.statusBar().showMessage(f"Ошибка при работе с SQLite: {error}")
+
+            finally:
+                if sqlite_connection:
+                    sqlite_connection.close()
+                    print("showSorted->Соединение с SQLite закрыто")
+        elif index == 1:
+            try:
+                sqlite_connection = sqlite3.connect('TasksDataBase.db')
+                cursor = sqlite_connection.cursor()
+                print("showSorted->Подключен к SQLite")
+
+                sqlite_select = """SELECT * FROM TasksTable ORDER BY text DESC"""
+                cursor.execute(sqlite_select)
+                result = cursor.fetchall()
+
+                n = 0
+                for i in result:
+                    self.table.setRowCount(n + 1)
+                    self.table.setItem(n, 0, QTableWidgetItem(str(i[0])))
+                    self.table.setItem(n, 1, QTableWidgetItem(i[1]))
+                    self.table.setItem(n, 2, QTableWidgetItem(i[2]))
+                    if i[3] == 0:
+                        self.table.setItem(n, 3, QTableWidgetItem(str("не выполнено")))
+                        self.table.item(n, 3).setBackground(QColor(50, 50, 150, 35))
+                    else:
+                        self.table.setItem(n, 3, QTableWidgetItem(str("выполнено")))
+                        self.table.item(n, 3).setBackground(QColor(0, 250, 150, 35))
+
+                    n += 1
+
+                cursor.close()
+
+            except sqlite3.Error as error:
+                print("showSorted->Ошибка при работе с SQLite", error)
+                self.statusBar().showMessage(f"Ошибка при работе с SQLite: {error}")
+
+            finally:
+                if sqlite_connection:
+                    sqlite_connection.close()
+                    print("showSorted->Соединение с SQLite закрыто")
+        elif index == 2:
+            self.showCompleted()
+        elif index == 3:
+            self.showUncompleted()
+        elif index == 4:
+            try:
+                sqlite_connection = sqlite3.connect('TasksDataBase.db')
+                cursor = sqlite_connection.cursor()
+                print("showSorted->Подключен к SQLite")
+
+                sqlite_select = """SELECT * FROM TasksTable ORDER BY date ASC"""
+                cursor.execute(sqlite_select)
+                result = cursor.fetchall()
+
+                n = 0
+                for i in result:
+                    self.table.setRowCount(n + 1)
+                    self.table.setItem(n, 0, QTableWidgetItem(str(i[0])))
+                    self.table.setItem(n, 1, QTableWidgetItem(i[1]))
+                    self.table.setItem(n, 2, QTableWidgetItem(i[2]))
+                    if i[3] == 0:
+                        self.table.setItem(n, 3, QTableWidgetItem(str("не выполнено")))
+                        self.table.item(n, 3).setBackground(QColor(50, 50, 150, 35))
+                    else:
+                        self.table.setItem(n, 3, QTableWidgetItem(str("выполнено")))
+                        self.table.item(n, 3).setBackground(QColor(0, 250, 150, 35))
+                    n += 1
+
+                cursor.close()
+
+            except sqlite3.Error as error:
+                print("showSorted->Ошибка при работе с SQLite", error)
+                self.statusBar().showMessage(f"Ошибка при работе с SQLite: {error}")
+
+            finally:
+                if sqlite_connection:
+                    sqlite_connection.close()
+                    print("showSorted->Соединение с SQLite закрыто")
+
+        elif index == 5:
+            try:
+                sqlite_connection = sqlite3.connect('TasksDataBase.db')
+                cursor = sqlite_connection.cursor()
+                print("showSorted->Подключен к SQLite")
+
+                sqlite_select = """SELECT * FROM TasksTable ORDER BY date DESC"""
+                cursor.execute(sqlite_select)
+                result = cursor.fetchall()
+
+                n = 0
+                for i in result:
+                    self.table.setRowCount(n + 1)
+                    self.table.setItem(n, 0, QTableWidgetItem(str(i[0])))
+                    self.table.setItem(n, 1, QTableWidgetItem(i[1]))
+                    self.table.setItem(n, 2, QTableWidgetItem(i[2]))
+                    if i[3] == 0:
+                        self.table.setItem(n, 3, QTableWidgetItem(str("не выполнено")))
+                        self.table.item(n, 3).setBackground(QColor(50, 50, 150, 35))
+                    else:
+                        self.table.setItem(n, 3, QTableWidgetItem(str("выполнено")))
+                        self.table.item(n, 3).setBackground(QColor(0, 250, 150, 35))
+                    n += 1
+
+                cursor.close()
+
+            except sqlite3.Error as error:
+                print("showSorted->Ошибка при работе с SQLite", error)
+                self.statusBar().showMessage(f"Ошибка при работе с SQLite: {error}")
+
+            finally:
+                if sqlite_connection:
+                    sqlite_connection.close()
+                    print("showSorted->Соединение с SQLite закрыто")
+        elif index == 6:
+            try:
+                sqlite_connection = sqlite3.connect('TasksDataBase.db')
+                cursor = sqlite_connection.cursor()
+                print("showSorted->Подключен к SQLite")
+
+                sqlite_select = """SELECT * FROM TasksTable ORDER BY id ASC"""
+                cursor.execute(sqlite_select)
+                result = cursor.fetchall()
+
+                n = 0
+                for i in result:
+                    self.table.setRowCount(n + 1)
+                    self.table.setItem(n, 0, QTableWidgetItem(str(i[0])))
+                    self.table.setItem(n, 1, QTableWidgetItem(i[1]))
+                    self.table.setItem(n, 2, QTableWidgetItem(i[2]))
+                    if i[3] == 0:
+                        self.table.setItem(n, 3, QTableWidgetItem(str("не выполнено")))
+                        self.table.item(n, 3).setBackground(QColor(50, 50, 150, 35))
+                    else:
+                        self.table.setItem(n, 3, QTableWidgetItem(str("выполнено")))
+                        self.table.item(n, 3).setBackground(QColor(0, 250, 150, 35))
+                    n += 1
+
+                cursor.close()
+
+            except sqlite3.Error as error:
+                print("showSorted->Ошибка при работе с SQLite", error)
+                self.statusBar().showMessage(f"Ошибка при работе с SQLite: {error}")
+
+            finally:
+                if sqlite_connection:
+                    sqlite_connection.close()
+                    print("showSorted->Соединение с SQLite закрыто")
+        elif index == 7:
+            try:
+                sqlite_connection = sqlite3.connect('TasksDataBase.db')
+                cursor = sqlite_connection.cursor()
+                print("showSorted->Подключен к SQLite")
+
+                sqlite_select = """SELECT * FROM TasksTable ORDER BY date DESC"""
+                cursor.execute(sqlite_select)
+                result = cursor.fetchall()
+
+                n = 0
+                for i in result:
+                    self.table.setRowCount(n + 1)
+                    self.table.setItem(n, 0, QTableWidgetItem(str(i[0])))
+                    self.table.setItem(n, 1, QTableWidgetItem(i[1]))
+                    self.table.setItem(n, 2, QTableWidgetItem(i[2]))
+                    if i[3] == 0:
+                        self.table.setItem(n, 3, QTableWidgetItem(str("не выполнено")))
+                        self.table.item(n, 3).setBackground(QColor(50, 50, 150, 35))
+                    else:
+                        self.table.setItem(n, 3, QTableWidgetItem(str("выполнено")))
+                        self.table.item(n, 3).setBackground(QColor(0, 250, 150, 35))
+                    n += 1
+
+                cursor.close()
+
+            except sqlite3.Error as error:
+                print("showSorted->Ошибка при работе с SQLite", error)
+                self.statusBar().showMessage(f"Ошибка при работе с SQLite: {error}")
+
+            finally:
+                if sqlite_connection:
+                    sqlite_connection.close()
+                    print("showSorted->Соединение с SQLite закрыто")
+        else:
+            self.outputTaskTable()
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
