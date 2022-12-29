@@ -115,6 +115,129 @@ class WidgetToDo(QMainWindow):
         self.setFont(self.font0)
         self.table.setFont(self.font0)
 
+    def getTodayDate(self):
+        now = datetime.datetime.now()
+        str = now.strftime("%d.%m.%Y")
+        print(f"getTodayDate->date:{str}")
+        self.statusBar().showMessage(f"{str}: Запущено")
+        self.task_date.setMinimumDate(now)
+        return str
+
+    def addTask(self):
+        print(f"addTask->task_text:{self.task_line.text()}")
+        print(f"addTask->task_date:{self.task_date.text()}")
+        self.statusBar().showMessage(f"Новая задача: {self.task_line.text()}. Дата: {self.task_date.text()}")
+
+        try:
+            sqlite_connection = sqlite3.connect('TasksDataBase.db')
+            cursor = sqlite_connection.cursor()
+            print("addTask->Подключен к SQLite")
+
+            sqlite_insert_with_param = """INSERT INTO TasksTable (text, date, isComplete)
+                                          VALUES (?, ?, ?);"""
+            data_tuple = (self.task_line.text(), self.task_date.text(), False)
+            cursor.execute(sqlite_insert_with_param, data_tuple)
+            sqlite_connection.commit()
+
+            print("addTask->Запись успешно добавлена")
+            cursor.close()
+
+        except sqlite3.Error as error:
+            print("addTask->Ошибка при работе с SQLite", error)
+            self.statusBar().showMessage(f"Ошибка при работе с SQLite: {error}")
+        finally:
+            if sqlite_connection:
+                sqlite_connection.close()
+                print("addTask->Соединение с SQLite закрыто")
+                self.outputTaskTable()
+
+    def outputTaskTable(self):
+        try:
+            sqlite_connection = sqlite3.connect('TasksDataBase.db')
+            cursor = sqlite_connection.cursor()
+            print("outputTaskTable->Подключен к SQLite")
+
+            sqlite_select_0 = """SELECT * FROM TasksTable WHERE isComplete = '0'"""
+            cursor.execute(sqlite_select_0)
+            result_0 = cursor.fetchall()
+
+            sqlite_select_1 = """SELECT * FROM TasksTable WHERE isComplete = '1'"""
+            cursor.execute(sqlite_select_1)
+            result_1 = cursor.fetchall()
+
+            n = 0
+            for i in result_0:
+                self.table.setRowCount(n + 1)
+                self.table.setItem(n, 0, QTableWidgetItem(str(i[0])))
+                self.table.setItem(n, 1, QTableWidgetItem(i[1]))
+                self.table.setItem(n, 2, QTableWidgetItem(i[2]))
+                self.table.setItem(n, 3, QTableWidgetItem("не выполнено"))
+                self.table.item(n, 3).setBackground(QColor(50, 50, 150, 35))
+
+                n += 1
+
+            for i in result_1:
+                self.table.setRowCount(n + 1)
+                self.table.setItem(n, 0, QTableWidgetItem(str(i[0])))
+                self.table.setItem(n, 1, QTableWidgetItem(i[1]))
+                self.table.setItem(n, 2, QTableWidgetItem(i[2]))
+                self.table.setItem(n, 3, QTableWidgetItem("выполнено"))
+                self.table.item(n, 3).setBackground(QColor(0, 250, 150, 35))
+                n += 1
+
+            cursor.close()
+
+        except sqlite3.Error as error:
+            print("outputTaskTable->Ошибка при работе с SQLite", error)
+            self.statusBar().showMessage(f"Ошибка при работе с SQLite: {error}")
+
+        finally:
+            if sqlite_connection:
+                sqlite_connection.close()
+                print("outputTaskTable->Соединение с SQLite закрыто")
+
+    def completeTask(self, number, isCompleted):
+        try:
+            sqlite_connection = sqlite3.connect('TasksDataBase.db')
+            cursor = sqlite_connection.cursor()
+            print("completeTask->Подключен к SQLite")
+
+            if isCompleted:
+                sqlite_select_0 = """UPDATE TasksTable SET isComplete = ? WHERE id = ?"""
+                cursor.execute(sqlite_select_0, (False, number))
+            else:
+                sqlite_select_0 = """UPDATE TasksTable SET isComplete = ? WHERE id = ?"""
+                cursor.execute(sqlite_select_0, (True, number))
+
+            sqlite_connection.commit()
+            print(f"completeTask->Данные обновлены")
+
+            cursor.close()
+
+        except sqlite3.Error as error:
+            print("completeTask->Ошибка при работе с SQLite", error)
+            self.statusBar().showMessage(f"Ошибка при работе с SQLite: {error}")
+
+        finally:
+            if sqlite_connection:
+                sqlite_connection.close()
+                print("completeTask->Соединение с SQLite закрыто")
+                self.outputTaskTable()
+
+    def rowSelected(self):
+        print("rowSelected->Выбрана ячейка")
+        selectedRow = int(self.table.currentRow())
+        number = int(self.table.item(selectedRow, 0).text())
+        strCompleted = str(self.table.item(selectedRow, 3).text())
+        if strCompleted == "не выполнено":
+            isCompleted = False
+        elif strCompleted == "выполнено":
+            isCompleted = True
+        else:
+            isCopleted = "rowSelected->не определен статус задачи"
+        print(f"{number}, {isCompleted}")
+        self.completeTask(number, isCompleted)
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
