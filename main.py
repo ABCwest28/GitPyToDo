@@ -84,6 +84,15 @@ class WidgetToDo(QMainWindow):
 
         self.table.setRowCount(0)
 
+    def closeEvent(self, event):
+        reply = QMessageBox.question(self, 'Подтверждение',
+                                     "Подтвердите выход", QMessageBox.Yes |
+                                     QMessageBox.No, QMessageBox.No)
+        if reply == QMessageBox.Yes:
+            event.accept()
+        else:
+            event.ignore()
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
