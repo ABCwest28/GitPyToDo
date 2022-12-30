@@ -15,7 +15,7 @@ class WidgetToDo(QMainWindow):
         self.initUI()
 
     def initUI(self):
-        self.resize(500, 500)
+        self.resize(900, 500)
         self.setWindowTitle('PyToDo')
         self.statusBar().showMessage("Запущено")
         self.setWindowToCenter()
@@ -36,6 +36,27 @@ class WidgetToDo(QMainWindow):
         self.task_btn.setEnabled(False)
         self.task_btn.setText("Добавить")
         self.task_btn.clicked.connect(self.addTask)
+
+
+        self.sort_combo = QComboBox(self)
+        self.sort_combo.setCurrentIndex(0)
+        self.sort_combo.addItem("Сортировать по алфавиту (возр)")
+        self.sort_combo.addItem("Сортировать по алфавиту (убыв)")
+        self.sort_combo.addItem("Показать выполненные")
+        self.sort_combo.addItem("Показать невыполненные")
+        self.sort_combo.addItem("Сортировать по дате (возр)")
+        self.sort_combo.addItem("Сортировать по дате (убыв)")
+        self.sort_combo.addItem("Сортировать по номеру (возр)")
+        self.sort_combo.addItem("Сортировать по номеру (убыв)")
+        self.sort_combo.addItem("Показать все")
+
+        self.sort_btn = QPushButton(self)
+        self.sort_btn.setText("Отсортировать")
+        self.sort_btn.clicked.connect(self.showSorted)
+
+        #self.sort_u_btn = QPushButton(self)
+        #self.sort_u_btn.setText("Показать невыполненные")
+        #self.sort_u_btn.clicked.connect(self.showUncompleted)
 
         self.layout_sizePol_init()
         self.table_init()
@@ -100,20 +121,6 @@ class WidgetToDo(QMainWindow):
         screen_center = QDesktopWidget().availableGeometry().center()
         my_frame_geom.moveCenter(screen_center)
         self.move(my_frame_geom.topLeft())
-
-    def set_font(self):
-        fontId = QFontDatabase.addApplicationFont(":/fonts/GoogleSans-Regular.ttf")
-
-        if fontId == 0:
-            fontName = QFontDatabase.applicationFontFamilies(fontId)[0]
-            self.font0 = QFont(fontName, 30)
-        else:
-            self.font0 = QFont()
-
-        self.font0.setPointSize(10)
-
-        self.setFont(self.font0)
-        self.table.setFont(self.font0)
 
     def getTodayDate(self):
         now = datetime.datetime.now()
@@ -237,6 +244,20 @@ class WidgetToDo(QMainWindow):
             isCopleted = "rowSelected->не определен статус задачи"
         print(f"{number}, {isCompleted}")
         self.completeTask(number, isCompleted)
+
+    def set_font(self):
+        fontId = QFontDatabase.addApplicationFont(":/fonts/GoogleSans-Regular.ttf")
+
+        if fontId == 0:
+            fontName = QFontDatabase.applicationFontFamilies(fontId)[0]
+            self.font0 = QFont(fontName, 30)
+        else:
+            self.font0 = QFont()
+
+        self.font0.setPointSize(10)
+
+        self.setFont(self.font0)
+        self.table.setFont(self.font0)
 
     def showCompleted(self):
         try:
